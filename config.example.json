@@ -1,0 +1,14 @@
+{
+  "venues": ["mexc"],
+  "accounts": ["client1-mexc"],
+  "symbols": ["XYZUSDT"],
+  "kinds": ["order", "trade"],
+  "start": null,
+  "end": null,
+  "lookback_minutes": 15,
+  "l2_time_column": "exchange_ts_ms",
+  "activity_time_column": "event_time_ms",
+  "l2_columns": null,
+  "activity_columns": null,
+  "limit": 10
+}

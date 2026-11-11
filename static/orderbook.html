@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order book · Trading Viewer</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Unbounded:wght@700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/orderbook-page.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Trading Viewer</h1>
+    <nav>
+      <a href="overview.html">Overview</a>
+      <a href="orderbook.html" aria-current="page">Order book</a>
+      <a href="trades.html">Trades</a>
+      <a href="balance.html">Balance</a>
+    </nav>
+
+    <label>Exchange <select id="venue"></select></label>
+    <label>Symbol <select id="symbol"></select></label>
+
+    <div class="field">From
+      <div class="datetime">
+        <input id="start-date" type="date" aria-label="From date">
+        <input id="start-time" class="time" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?" placeholder="HH:MM:SS" maxlength="8" spellcheck="false" autocomplete="off" aria-label="From time, 24-hour">
+      </div>
+    </div>
+    <div class="field">To
+      <div class="datetime">
+        <input id="end-date" type="date" aria-label="To date">
+        <input id="end-time" class="time" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?" placeholder="HH:MM:SS" maxlength="8" spellcheck="false" autocomplete="off" aria-label="To time, 24-hour">
+      </div>
+    </div>
+    <label>Time zone <select id="tz"></select></label>
+
+    <div class="presets" id="presets" title="Load the last 15m to 1M; Load keeps the period ending now until you edit the period fields">
+      <button data-min="15">15m</button>
+      <button data-min="60">1h</button>
+      <button data-min="360">6h</button>
+      <button data-min="1440">1d</button>
+      <button data-min="10080">7d</button>
+      <button data-min="43200" title="Last 30 days">1M</button>
+    </div>
+
+    <button class="primary" id="load">Load</button>
+
+    <div class="user"><span id="user-name"></span><button id="logout">Log out</button></div>
+  </header>
+
+  <main class="stack">
+    <section>
+      <h2>Market depth <small id="depth-sub"></small></h2>
+      <div id="depth-panel"><div class="message">Loading filter values…</div></div>
+    </section>
+    <section>
+      <h2>Spread <small id="spread-sub"></small></h2>
+      <div id="spread-panel"><div class="message">Loading filter values…</div></div>
+    </section>
+    <section class="narrow">
+      <h2>Last snapshot in period <small id="panel-sub"></small></h2>
+      <div id="panel"><div class="message">Loading filter values…</div></div>
+    </section>
+  </main>
+</body>
+</html>

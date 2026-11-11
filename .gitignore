@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+credentials.json
+*example.csv
+config.json
+CLAUDE.md
+database_schema.md
+*temp*
+users.db

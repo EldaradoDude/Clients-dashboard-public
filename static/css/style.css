@@ -1,0 +1,473 @@
+/* ---- theme ---- */
+
+/* Dark theme: #1b1b1b base, #181818 sections, lime #b4e951 accent.
+   The site's Actay / Actay Wide fonts are not public; Inter and Unbounded stand in. */
+:root {
+  color-scheme: dark;
+  --bg: #1b1b1b;
+  --panel: #181818;
+  --raised: #272727;
+  --field: #121212;
+  --border: #2c2c2c;
+  --border-strong: #3a3a3a;
+  --text: #ffffff;
+  --muted: #999999;
+  --accent: #b4e951;
+  --on-accent: #1b1b1b;
+  --accent-glow: rgba(180, 233, 81, .45);
+  --bid: #b4e951;
+  --ask: #ff5c5c;
+  --bid-bg: rgba(180, 233, 81, .14);
+  --ask-bg: rgba(255, 92, 92, .14);
+  --neutral: #6ea8fe;  /* series that are neither side, e.g. spread, available balance */
+  --neutral-dim: rgba(110, 168, 254, .4);  /* reserved balance, stacked on available */
+  --hover: #222222;
+  --font: Actay, Inter, system-ui, "Segoe UI", sans-serif;
+  --font-wide: "Actay Wide", Unbounded, system-ui, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse 70% 320px at 50% -120px, rgba(180, 233, 81, .12), transparent) fixed, var(--bg);
+  color: var(--text);
+  font: 14px/1.45 var(--font);
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+[hidden] { display: none !important; }  /* also over display: flex rules */
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- header / controls ---- */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  align-items: flex-end;
+  padding: 12px 20px;
+  background: rgba(24, 24, 24, .92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 4px 11px 0;
+  font: 700 12px/1 var(--font-wide);
+  text-transform: uppercase;
+}
+h1::before { content: ""; width: 12px; height: 12px; border-radius: 3px; background: var(--accent); }
+
+/* Page tabs; the current page has aria-current="page". */
+nav { display: flex; gap: 2px; margin-right: 6px; padding: 3px; background: var(--field);
+      border: 1px solid var(--border); border-radius: 12px; }
+nav a { padding: 7px 12px; border-radius: 9px; color: var(--text); text-decoration: none;
+        font: 700 11px/1.2 var(--font-wide); transition: .2s; }
+nav a:hover { color: var(--accent); }
+nav a[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+
+label, .field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+select, input, button {
+  height: 36px;
+  padding: 0 10px;
+  font: 13px var(--font);
+  color: var(--text);
+  background: var(--field);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  transition: .2s;
+}
+
+select { min-width: 120px; }
+select:hover, input:hover { border-color: var(--muted); }
+select:focus, input:focus { border-color: var(--accent); outline: none; }
+button { cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+
+button.primary {
+  padding: 0 22px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font: 700 13px/1 var(--font-wide);
+}
+button.primary:hover:not(:disabled) { box-shadow: 0 0 24px 0 var(--accent-glow); }
+
+/* Accounts dropdown: a <details> whose summary looks like a select and whose menu holds checkboxes. */
+.dropdown { position: relative; }
+.dropdown > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 180px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--field);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: .2s;
+}
+.dropdown > summary::-webkit-details-marker { display: none; }
+.dropdown > summary::after { content: "▾"; margin-left: auto; color: var(--muted); }
+.dropdown > summary:hover { border-color: var(--muted); }
+.dropdown[open] > summary { border-color: var(--accent); }
+.dropdown .menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 3;
+  min-width: 100%;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 6px;
+  background: var(--raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+}
+.menu-group { padding: 8px 8px 2px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+label.check { flex-direction: row; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 8px;
+              color: var(--text); font-size: 13px; white-space: nowrap; cursor: pointer; }
+label.check:hover { background: var(--hover); }
+label.check input { width: 14px; height: 14px; margin: 0; padding: 0; accent-color: var(--accent); }
+
+/* Period: a date field and a 24-hour HH:MM:SS text field per end, each with a picker. */
+.datetime { display: flex; gap: 4px; }
+.datetime input[type="date"] { width: 140px; padding-right: 32px; }
+/* The browser's own picker is replaced by js/pickers.js. */
+.datetime input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+.datetime input.time { width: 112px; padding-right: 32px; font-variant-numeric: tabular-nums; }
+.datetime input.time:invalid { border-color: var(--ask); }
+
+/* Pickers (js/pickers.js): an icon button in the field opens a popup styled like the accounts
+   dropdown menu: a calendar, or hour/minute/second columns; both with a footer of two actions. */
+.picker-field { position: relative; }
+.picker-button {
+  position: absolute; top: 50%; right: 5px; transform: translateY(-50%);
+  display: grid; place-items: center;
+  width: 26px; height: 26px; padding: 0;
+  color: var(--muted); background: none; border: 0; border-radius: 8px;
+}
+.picker-button:hover { color: var(--text); background: var(--hover); }
+.picker-popup {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 3;
+  padding: 6px;
+  background: var(--raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+}
+.picker-popup[hidden] { display: none; }
+.picker-popup button { padding: 0; background: none; border: 0; border-radius: 8px; font-variant-numeric: tabular-nums; }
+.picker-popup button:hover { background: var(--hover); }
+.picker-popup button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.picker-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; padding-top: 6px;
+               border-top: 1px solid var(--border); }
+.picker-foot button { height: 28px; padding: 0 10px; color: var(--accent); font-weight: 600; }
+
+.time-cols { display: flex; gap: 4px; }
+.time-col { position: relative; display: flex; flex-direction: column; gap: 2px; height: 224px;
+            overflow-y: auto; scrollbar-width: thin; }
+.time-col button { flex: none; width: 44px; height: 28px; }
+
+.cal-head { display: flex; align-items: center; justify-content: space-between; padding: 0 0 6px; }
+.cal-head b { font-size: 13px; font-weight: 600; }
+.picker-popup .cal-nav { width: 28px; height: 28px; font-size: 18px; color: var(--muted); }
+.picker-popup .cal-nav:hover { color: var(--text); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 32px); gap: 2px; }
+.cal-grid .wd { padding: 4px 0; font-size: 11px; color: var(--muted); text-align: center; }
+.cal-grid button { height: 30px; }
+.cal-grid button.other:not([aria-pressed="true"]) { color: var(--muted); }
+.cal-grid button.today:not([aria-pressed="true"]) { box-shadow: inset 0 0 0 1px var(--accent); }
+#tz { max-width: 280px; }
+
+/* Period presets, styled like the site's category pills. */
+.presets { display: flex; gap: 4px; }
+.presets button { padding: 0 10px; background: var(--raised); border-color: var(--raised); border-radius: 8px;
+                  font: 700 11px/1 var(--font-wide); }
+.presets button:hover:not(:disabled) { background: var(--text); border-color: var(--text); color: var(--raised); }
+.presets button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+/* Logged-in user and logout, at the right end of the header. */
+.user { display: flex; align-items: center; gap: 10px; margin-left: auto; color: var(--muted); font-size: 12px; }
+.user button { background: var(--raised); border-color: var(--raised); }
+.user button:hover { border-color: var(--text); }
+
+/* Hiding the header (js/page.js): the header goes, a small button at the top right brings it back. */
+body.header-hidden > header { display: none; }
+body.header-hidden main { padding-top: 50px; }  /* room for the button, clear of the panel titles */
+#show-header { display: none; }
+body.header-hidden #show-header {
+  display: block; position: fixed; top: 10px; right: 16px; z-index: 5;
+  height: 30px; padding: 0 12px; font-size: 12px;
+  background: var(--raised); border-color: var(--border-strong); border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .5);
+}
+#show-header:hover { border-color: var(--text); }
+
+/* ---- login ---- */
+
+.login { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 340px; margin: 12vh auto 0;
+         padding: 28px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; }
+.login h1 { margin: 0 0 6px; }
+.login .message { padding: 0; text-align: left; }
+.login button { margin-top: 4px; }
+
+/* ---- layout / panels ---- */
+
+main { padding: 20px; }
+main.stack { display: flex; flex-direction: column; gap: 20px; }
+.narrow { width: 100%; max-width: 920px; margin: 0 auto; }
+
+section {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+section > h2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 16px 20px;
+  font: 700 14px/1.3 var(--font-wide);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+h2 small { font: 400 12px/1.3 var(--font); text-transform: none; color: var(--muted); }
+
+/* Overview page: its blocks side by side in columns (stacked on narrow screens), each as tall as
+   its content; their tiles fill each column's width. */
+.ov-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ov-block { display: flex; flex-direction: column; min-width: 0; }
+.ov-block + .ov-block { border-left: 1px solid var(--border); }
+@media (max-width: 1100px) {
+  .ov-grid { grid-template-columns: minmax(0, 1fr); }
+  .ov-block + .ov-block { border-left: 0; border-top: 1px solid var(--border); }
+}
+.ov-head { padding: 14px 20px 0; }
+.ov-head b { font: 700 13px/1.3 var(--font-wide); text-transform: uppercase; }
+.ov-head .muted { margin-left: 8px; font-size: 12px; }
+.ov-body { padding: 0 0 6px; }
+.stats.ov-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px 24px; border-bottom: 0; }
+.ov-stats .stat > span { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ov-stats .stat b { font-size: clamp(18px, 1.6vw, 28px); white-space: nowrap; }
+/* Market with several exchanges: a row per exchange, its name above its tiles. */
+.ov-row + .ov-row { border-top: 1px dashed var(--border); }
+.ov-row-name { padding: 10px 20px 0; font: 700 12px/1.3 var(--font-wide); text-transform: uppercase; }
+.ov-row-name .muted { margin-left: 6px; font: 400 11px/1.3 var(--font); text-transform: none; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px 18px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.stat > span {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.stat b { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* Numbers rounded by fitNumbers() to fit their tile. */
+.stat b.fit { display: block; overflow: hidden; white-space: nowrap; }
+
+.message { padding: 36px 20px; text-align: center; color: var(--muted); }
+.message.error { color: var(--ask); }
+
+.note {
+  padding: 8px 20px;
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---- tables ---- */
+
+.scroll { max-height: calc(100vh - 280px); min-height: 200px; overflow: auto; }
+
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+
+th, td { padding: 4px 20px; text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+
+th {
+  position: sticky;
+  top: 0;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+/* Depth bars: each ladder row sets --depth (0-100%) inline. */
+.book tr.ask { background: linear-gradient(to left, var(--ask-bg) var(--depth), transparent var(--depth)); }
+.book tr.bid { background: linear-gradient(to left, var(--bid-bg) var(--depth), transparent var(--depth)); }
+.book tr.ask td:first-child { color: var(--ask); font-weight: 600; }
+.book tr.bid td:first-child { color: var(--bid); font-weight: 600; }
+
+/* Ladder controls: side switch and price decimals. */
+.book-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+             padding: 10px 20px; border-bottom: 1px solid var(--border); }
+/* Quote-currency columns, set off from the base ones. */
+.book th.quote:nth-child(4), .book td.quote:nth-child(4) { border-left: 1px solid var(--border); }
+
+.book tr.spread td {
+  padding: 7px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--field);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.trades tbody tr:hover, .balance-history tbody tr:hover { background: var(--hover); }
+/* The row a table's "Go to" (js/table-goto.js) scrolled to. */
+tbody tr.found { background: var(--hover); }
+tbody tr.found td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.table-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 20px;
+               border-bottom: 1px solid var(--border); font-size: 13px; }
+
+/* Per-account summaries with a combined row (trades stats, balances). */
+.scroll-x { overflow-x: auto; border-bottom: 1px solid var(--border); }
+.summary th { position: static; }
+.summary td { padding-top: 8px; padding-bottom: 8px; vertical-align: top; }
+.summary tbody tr:hover { background: var(--hover); }
+.summary tr.total td { font-weight: 600; background: var(--field); border-top: 1px solid var(--border-strong); }
+/* Balance table: the total columns stand out. */
+.balances .col-total { background: rgba(180, 233, 81, .06); border-left: 1px solid rgba(180, 233, 81, .3);
+                       border-right: 1px solid rgba(180, 233, 81, .3); font-weight: 600; }
+.balances th.col-total { color: var(--accent); }
+.balances tr.total td.col-total { background: rgba(180, 233, 81, .12); }
+
+/* ---- charts (trade delta, market depth, spread, balance) ---- */
+
+.chart-block { padding: 14px 20px 8px; border-bottom: 1px solid var(--border); }
+.chart-block:only-child { border-bottom: 0; }  /* alone in its panel */
+
+.chart-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 6px; }
+.chart-title { margin-right: auto; }
+.chart-title b { font: 700 13px/1.3 var(--font-wide); text-transform: uppercase; }
+.chart-key { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+label.inline { flex-direction: row; align-items: center; gap: 8px; }
+label.inline select { min-width: 90px; height: 32px; border-radius: 8px; }
+
+.swatch { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 3px; }
+.swatch-sell { background: var(--ask); }
+.swatch-buy { background: var(--bid); }
+.swatch-neutral { background: var(--neutral); }
+.swatch-mid { background: var(--text); }
+.swatch-available { background: var(--neutral); }
+.swatch-reserved { background: var(--neutral-dim); }
+
+/* View switch in a chart head, styled like the period presets. */
+.views { display: flex; gap: 4px; }
+.views button { height: 32px; padding: 0 12px; background: var(--raised); border-color: var(--raised); border-radius: 8px;
+                font: 700 11px/1 var(--font-wide); }
+.views button:hover:not(:disabled) { border-color: var(--text); }
+.views button[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--raised); }
+
+/* Two charts side by side (balance: base left, quote right), stacked on narrow screens. */
+.chart-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+@media (max-width: 900px) { .chart-pair { grid-template-columns: minmax(0, 1fr); } }
+.chart-name { margin: 4px 0; font: 700 12px/1.3 var(--font-wide); text-transform: uppercase; }
+
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: 260px; }
+.chart .grid { stroke: var(--border); stroke-width: 1; }
+.chart .zero { stroke: var(--border-strong); stroke-width: 1; }
+.chart .axis { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.chart .bar-sell { fill: var(--ask); }
+.chart .bar-buy { fill: var(--bid); }
+.chart .bar-neutral, .chart .bar-available { fill: var(--neutral); }
+.chart .bar-reserved { fill: var(--neutral-dim); }
+.chart g path { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.chart g circle { fill: currentColor; }
+.chart .line-bid { color: var(--bid); }
+.chart .line-ask { color: var(--ask); }
+.chart .line-mid { color: var(--text); }
+.chart .line-mid path { stroke-dasharray: 4 3; }
+.chart .hover-col { fill: var(--hover); }
+
+.tooltip {
+  position: absolute;
+  z-index: 1;
+  min-width: 190px;
+  padding: 10px 12px;
+  pointer-events: none;
+  background: var(--raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tip-time { margin-bottom: 4px; color: var(--muted); }
+.tip-row { display: flex; justify-content: space-between; gap: 16px; }
+.tip-row > span:last-child { text-align: right; }
+
+/* ---- collapsible trades table ---- */
+
+details.table-toggle > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  font: 700 13px/1.3 var(--font-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: .2s;
+}
+details.table-toggle > summary::-webkit-details-marker { display: none; }
+details.table-toggle > summary::before { content: "▸"; color: var(--accent); transition: transform .2s; }
+details.table-toggle[open] > summary::before { transform: rotate(90deg); }
+details.table-toggle > summary:hover { background: var(--hover); }
+details.table-toggle[open] > summary { border-bottom: 1px solid var(--border); }
+details.table-toggle .muted { font: 400 12px/1.3 var(--font); text-transform: none; }
+
+/* ---- text helpers ---- */
+
+.buy { color: var(--bid); font-weight: 600; }
+.sell { color: var(--ask); font-weight: 600; }
+.muted { color: var(--muted); }
