@@ -1,4 +1,4 @@
-"""Manage viewer users and their grants (users.py). Run with .venv/Scripts/python.exe:
+"""Manage viewer users and their grants (viewer/users.py). Run with .venv/Scripts/python.exe:
 
   manage.py add-user NAME                     prompts for the password
   manage.py set-password NAME                 also logs the user out everywhere
@@ -22,8 +22,8 @@ import sys
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from auth import end_user_sessions
-from users import AccountGrant, SymbolGrant, User, find_user, get_sessionmaker, hash_password, normalize_username
+from viewer.auth import end_user_sessions
+from viewer.users import AccountGrant, SymbolGrant, User, find_user, get_sessionmaker, hash_password, normalize_username
 
 
 class CommandError(Exception):
@@ -49,7 +49,7 @@ def _ask_password() -> str:
 
 def _check_exists(venue: str, kind: str, value: str | None = None) -> None:
     """Fail unless ClickHouse knows the venue and, for kind "account"/"symbol", the value."""
-    from query import fetch_filter_values  # connects to ClickHouse; only needed here
+    from viewer.query import fetch_filter_values  # connects to ClickHouse; only needed here
 
     options = fetch_filter_values()
     if venue not in options:
@@ -114,7 +114,7 @@ def grant_symbol(session: Session, args: argparse.Namespace) -> str:
 
 def grant_all(session: Session, args: argparse.Namespace) -> str:
     """Grant every account and symbol ClickHouse has now; ones added later need another run."""
-    from query import fetch_filter_values  # connects to ClickHouse; only needed here
+    from viewer.query import fetch_filter_values  # connects to ClickHouse; only needed here
 
     user = _user(session, args.name)
     accounts = {(g.venue, g.account) for g in user.accounts}

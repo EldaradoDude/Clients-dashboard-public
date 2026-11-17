@@ -40,12 +40,23 @@ hand-written SVG charts, with no build step.
 browser (static/, ES modules)
    │  /api/*  (JSON)
    ▼
-FastAPI app (app.py)
+FastAPI app (viewer/main.py)
    ├── auth.py / access.py / users.py   login, sessions, grants  →  SQLite / any SQLAlchemy DB (Alembic migrations)
    ├── schemas.py                       Pydantic request/response models
    ├── query.py                         SQL builders + ClickHouse client  →  ClickHouse
    └── trades.py                        normalizes venue-specific trade payloads, summaries, buckets
 ```
+
+```
+viewer/        Python package: the app and its modules (above), config.py
+static/        the front end, served as-is (HTML, css/, js/)
+migrations/    Alembic migrations of the users database
+deploy/        Caddyfile, systemd unit, update script (see deploy/README.md)
+manage.py      CLI for users and grants
+```
+
+Config files (`config.json`, `credentials.json`) and the SQLite `users.db` live in the project
+root, next to `manage.py`.
 
 Heavy aggregation (per-minute buckets, latest balance per account) runs in ClickHouse. The
 app normalizes and merges the results, and the browser renders them.
@@ -78,7 +89,7 @@ cp config.example.json config.json                  # filters for query.py (git-
 .venv/Scripts/python manage.py add-user alice
 .venv/Scripts/python manage.py grant-all alice        # or grant-account / grant-symbol
 
-.venv/Scripts/python app.py                           # http://127.0.0.1:8050
+.venv/Scripts/python -m viewer.main                   # http://127.0.0.1:8050
 ```
 
 The ClickHouse connection can also come from the `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`,
@@ -89,4 +100,4 @@ users database defaults to `users.db` (SQLite). Set `VIEWER_DB_URL` to use anoth
 
 It runs as a single uvicorn worker behind Caddy (automatic HTTPS) on a Linux VM, managed by
 systemd. There is one worker because the ClickHouse client is shared behind a lock and the
-users database is SQLite.
+users database is SQLite. The config files and setup steps are in [deploy/](deploy/README.md).

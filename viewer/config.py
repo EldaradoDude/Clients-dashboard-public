@@ -1,6 +1,6 @@
 """Configuration for ClickHouse queries.
 
-Edit config.json to choose what query.py loads. Connection settings are read
+Edit config.json (project root) to choose what query.py loads. Connection settings are read
 from credentials.json; keys missing there fall back to environment variables
 (see ConnectionConfig).
 
@@ -15,8 +15,10 @@ from dataclasses import dataclass, field, fields
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-CONFIG_PATH = Path(__file__).with_name("config.json")
-CREDENTIALS_PATH = Path(__file__).with_name("credentials.json")
+# The project root (the folder above this package): config files, users.db and static/ live there.
+ROOT_DIR = Path(__file__).resolve().parent.parent
+CONFIG_PATH = ROOT_DIR / "config.json"
+CREDENTIALS_PATH = ROOT_DIR / "credentials.json"
 
 # A time bound can be epoch milliseconds, a datetime (naive = UTC),
 # or an ISO string such as "2026-10-22 10:00:00" (naive = UTC).
