@@ -74,6 +74,31 @@ app normalizes and merges the results, and the browser renders them.
 The names above are placeholders. Account names such as `client1-mexc` and pairs such as
 `ABCUSDT` in the examples are made up.
 
+## Try it with demo data
+
+Needs Docker (with Compose) and about 2 GB of free memory.
+
+```bash
+docker compose -f demo/compose.yaml up --build
+```
+
+Then open **http://127.0.0.1:8050** and log in as `demo` / `demo-password`. The first start
+takes a minute or two: it builds the image, starts ClickHouse and generates a week of data.
+
+The demo runs a local ClickHouse filled with synthetic data by [demo/seed.py](demo/seed.py):
+7 markets for two made-up pairs (`ABC/USDT` on five exchanges, `XYZ/USDT` on two), and 6 accounts
+whose trades use each exchange's own message format. New snapshots, trades and balances arrive
+every 10 seconds, so presets such as "15m" stay current. Prices follow smooth waves with noise.
+Balances move on their own and aren't derived from the trades.
+
+- Open it on this machine as `127.0.0.1` (or `localhost`, which can be slower when it tries IPv6
+  first). The login cookie is `Secure`, which browsers accept over plain HTTP only there, not on
+  a LAN address. Safari may refuse it, so use Chrome, Edge or Firefox.
+- `docker compose -f demo/compose.yaml down` removes the containers and the data. The next `up` generates it again.
+- Everything for the demo is in [demo/](demo/): the compose file, Dockerfile and generator.
+- The schema is in [demo/schema.sql](demo/schema.sql): the tables and views the app reads, under
+  the placeholder names below.
+
 ## Running locally
 
 Requires Python 3.11 and access to a ClickHouse instance with the tables above.

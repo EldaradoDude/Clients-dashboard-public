@@ -106,5 +106,6 @@ def load_credentials(path: str | Path = CREDENTIALS_PATH) -> ConnectionConfig:
     return ConnectionConfig(**data)
 
 
-CONFIG = load_config()
-CREDENTIALS = load_credentials()
+# Without the files (e.g. in the Docker demo), the defaults and CLICKHOUSE_* env vars apply.
+CONFIG = load_config() if CONFIG_PATH.exists() else QueryConfig()
+CREDENTIALS = load_credentials() if CREDENTIALS_PATH.exists() else ConnectionConfig()

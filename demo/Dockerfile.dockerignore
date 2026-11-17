@@ -1,0 +1,15 @@
+# The ignore file of demo/Dockerfile (BuildKit reads <Dockerfile>.dockerignore). Paths are
+# relative to the build context, the project root. Keep secrets and local state out of the image.
+credentials.json
+config.json
+**/*.db
+**/.env
+**/*example.csv
+**/*temp*
+
+.git
+.venv
+**/__pycache__
+**/*.pyc
+CLAUDE.md
+database_schema.md
