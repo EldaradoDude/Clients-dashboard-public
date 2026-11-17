@@ -1,8 +1,8 @@
 """Local web viewer: the last L2 snapshot, and accounts' trades and balances, for a time period.
 
-A FastAPI app. Run `.venv/Scripts/python.exe app.py` (or `uvicorn app:app --port 8050`)
-and open http://127.0.0.1:8050. The page lives in static/ (index.html, css/, js/) and is served
-as-is. The API is described at /docs; its request and response models are in schemas.py.
+A FastAPI app. Run `.venv/Scripts/python.exe -m viewer.main` from the project root (or
+`uvicorn viewer.main:app --port 8050`) and open http://127.0.0.1:8050. The page lives in the
+project root's static/ (index.html, css/, js/) and is served as-is. The API is described at /docs; its request and response models are in schemas.py.
 
 Everything needs a login (auth.py) except login.html, its script and the stylesheet; pages
 redirect to login.html, API calls get 401. Users are managed with manage.py.
@@ -48,23 +48,23 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from sqlalchemy import inspect
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from access import Accounts, AccountSelection, Market, UserGrants
-from auth import CurrentUser, User, current_user, optional_user, router as auth_router
-from config import QueryConfig
-from query import (
+from .access import Accounts, AccountSelection, Market, UserGrants
+from .auth import CurrentUser, User, current_user, optional_user, router as auth_router
+from .config import ROOT_DIR, QueryConfig
+from .query import (
     BALANCE_FIELDS, build_activity_query, build_balance_query, build_c2_balance_query, build_c2_trades_query,
     build_depth_query, build_l2_query, build_mid_query, fetch_filter_values, get_client, is_userdata_account,
     split_pair,
 )
-from schemas import (
+from .schemas import (
     AccountBalance, AccountTrades, BalanceResponse, MarketBucketsResponse, MarketQuery, OrderbookResponse,
     TradesResponse, VenueOptions,
 )
-from trades import normalize_c2_trade, normalize_trade, quote_buckets, summarize
-from users import get_sessionmaker
+from .trades import normalize_c2_trade, normalize_trade, quote_buckets, summarize
+from .users import get_sessionmaker
 
 HOST, PORT = "127.0.0.1", 8050
-STATIC_DIR = Path(__file__).with_name("static").resolve()
+STATIC_DIR = (ROOT_DIR / "static").resolve()
 CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",

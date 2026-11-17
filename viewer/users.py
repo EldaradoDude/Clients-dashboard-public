@@ -4,8 +4,8 @@ A user sees only what is granted to them: accounts (venue, account) for balances
 and symbols (venue, symbol) for market data. Grants are explicit and managed with manage.py.
 Logged-in browsers have a row in sessions (see auth.py).
 
-The database URL is VIEWER_DB_URL, by default users.db next to this file. Create or upgrade
-the schema with `.venv/Scripts/python.exe -m alembic upgrade head` (migrations in alembic/).
+The database URL is VIEWER_DB_URL, by default users.db in the project root. Create or upgrade
+the schema with `.venv/Scripts/python.exe -m alembic upgrade head` (migrations in migrations/).
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from pwdlib import PasswordHash
 from sqlalchemy import DateTime, Engine, ForeignKey, String, create_engine, event, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, relationship, sessionmaker
 
-DATABASE_URL = os.getenv("VIEWER_DB_URL", f"sqlite:///{Path(__file__).with_name('users.db')}")
+DATABASE_URL = os.getenv("VIEWER_DB_URL", f"sqlite:///{Path(__file__).resolve().parent.parent / 'users.db'}")
 MIN_PASSWORD_LENGTH = 12
 
 _password_hash = PasswordHash.recommended()  # Argon2id

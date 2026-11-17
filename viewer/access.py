@@ -13,9 +13,9 @@ from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, Query
 
-from auth import CurrentUser
-from query import pair_key
-from schemas import AccountQuery, MarketQuery
+from .auth import CurrentUser
+from .query import pair_key
+from .schemas import AccountQuery, MarketQuery
 
 
 @dataclass(frozen=True)

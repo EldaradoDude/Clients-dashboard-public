@@ -1,0 +1,73 @@
+# Demo, from the project root: `docker compose -f demo/compose.yaml up --build` (or
+# `docker compose up --build` in demo/), then open http://127.0.0.1:8050 and log in as
+# demo / demo-password. ClickHouse is filled with synthetic data (demo/seed.py), and new data
+# keeps arriving every 10 s. `docker compose -f demo/compose.yaml down` removes
+# everything. The image is built from the project root (demo/Dockerfile, demo/Dockerfile.dockerignore).
+name: trading-viewer-demo
+
+x-build: &build
+  context: ..
+  dockerfile: demo/Dockerfile
+
+x-clickhouse-env: &clickhouse-env
+  CLICKHOUSE_HOST: clickhouse
+  CLICKHOUSE_PORT: "8123"
+  CLICKHOUSE_USER: demo
+  CLICKHOUSE_PASSWORD: demo
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.8
+    environment:
+      CLICKHOUSE_USER: demo
+      CLICKHOUSE_PASSWORD: demo
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: "1"
+    ulimits:
+      nofile: { soft: 262144, hard: 262144 }
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--user", "demo", "--password", "demo", "--query", "SELECT 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  # Creates the tables, generates DEMO_DAYS of history, then appends new data every 10 s.
+  seeder:
+    build: *build
+    command: ["python", "-m", "demo.seed", "--follow"]
+    environment:
+      <<: *clickhouse-env
+      DEMO_DAYS: "7"
+    depends_on:
+      clickhouse: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/seeded"]
+      interval: 3s
+      retries: 200
+    restart: unless-stopped
+
+  app:
+    build: *build
+    command:
+      - sh
+      - -c
+      - python -m alembic upgrade head && python -m demo.bootstrap
+        && exec python -m uvicorn viewer.main:app --host 0.0.0.0 --port 8050
+    environment:
+      <<: *clickhouse-env
+      VIEWER_DB_URL: sqlite:////data/users.db
+      DEMO_USER: demo
+      DEMO_PASSWORD: demo-password
+    # Only reachable from this machine. The login cookie is Secure, which browsers allow over
+    # plain HTTP only on 127.0.0.1 / localhost, so not on a LAN address. Prefer 127.0.0.1:
+    # "localhost" may try IPv6 (::1) first, where nothing listens, which delays each connection.
+    ports:
+      - "127.0.0.1:8050:8050"
+    depends_on:
+      seeder: { condition: service_healthy }
+    # Healthy once the server answers, so `docker compose up --wait` returns when it's usable.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8050/login.html')"]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+    restart: unless-stopped

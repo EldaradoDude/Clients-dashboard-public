@@ -1,11 +1,11 @@
-"""Alembic migrations for the users database (users.py). The URL comes from users.DATABASE_URL
+"""Alembic migrations for the users database (viewer/users.py). The URL comes from users.DATABASE_URL
 (VIEWER_DB_URL), not alembic.ini."""
 
 from logging.config import fileConfig
 
 from alembic import context
 
-from users import DATABASE_URL, Base, get_engine
+from viewer.users import DATABASE_URL, Base, get_engine
 
 config = context.config
 if config.config_file_name is not None:

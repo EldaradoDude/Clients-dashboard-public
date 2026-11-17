@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import delete, or_
 from sqlalchemy.orm import Session
 
-from users import User, UserSession, authenticate, utcnow
+from .users import User, UserSession, authenticate, utcnow
 
 COOKIE_NAME = "viewer_session"
 IDLE_TIMEOUT = timedelta(hours=12)

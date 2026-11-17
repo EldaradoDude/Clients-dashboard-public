@@ -1,0 +1,11 @@
+# /etc/caddy/Caddyfile: HTTPS (Let's Encrypt) in front of the viewer on 127.0.0.1:8050.
+# Replace the email and domain. Apply with: sudo systemctl reload caddy
+{
+	email admin@example.com
+}
+
+dashboard.example.com {
+	encode zstd gzip
+	# Caddy passes the Host header through, which the app's Origin check relies on.
+	reverse_proxy 127.0.0.1:8050
+}

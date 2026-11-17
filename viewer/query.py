@@ -10,7 +10,7 @@ aggregates by build_depth_query and build_mid_query, and account balances per in
 (build_balance_query).
 
 Edit config.json (or build your own QueryConfig) and call
-fetch_l2_snapshots / fetch_account_activity.
+fetch_l2_snapshots / fetch_account_activity. `python -m viewer.query` prints the head of both.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ import clickhouse_connect
 import pandas as pd
 from clickhouse_connect.driver.client import Client
 
-from config import CONFIG, CREDENTIALS, ConnectionConfig, QueryConfig
+from .config import CONFIG, CREDENTIALS, ConnectionConfig, QueryConfig
 
 DATABASE = "trading"
 L2_TABLE = f"{DATABASE}.l2_snapshots"

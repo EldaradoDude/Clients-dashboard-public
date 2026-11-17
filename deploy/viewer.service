@@ -1,0 +1,22 @@
+# /etc/systemd/system/viewer.service: runs the viewer with uvicorn on 127.0.0.1:8050.
+# Replace /home/ubuntu/viewer and User= with your checkout and user, then:
+#   sudo cp deploy/viewer.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now viewer
+[Unit]
+Description=Trading Viewer (FastAPI + uvicorn)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/viewer
+# One worker: the ClickHouse client is shared behind a lock and the users DB is SQLite.
+ExecStart=/home/ubuntu/viewer/.venv/bin/python -m uvicorn viewer.main:app --host 127.0.0.1 --port 8050 --workers 1
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

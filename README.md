@@ -40,12 +40,23 @@ hand-written SVG charts, with no build step.
 browser (static/, ES modules)
    │  /api/*  (JSON)
    ▼
-FastAPI app (app.py)
+FastAPI app (viewer/main.py)
    ├── auth.py / access.py / users.py   login, sessions, grants  →  SQLite / any SQLAlchemy DB (Alembic migrations)
    ├── schemas.py                       Pydantic request/response models
    ├── query.py                         SQL builders + ClickHouse client  →  ClickHouse
    └── trades.py                        normalizes venue-specific trade payloads, summaries, buckets
 ```
+
+```
+viewer/        Python package: the app and its modules (above), config.py
+static/        the front end, served as-is (HTML, css/, js/)
+migrations/    Alembic migrations of the users database
+deploy/        Caddyfile, systemd unit, update script (see deploy/README.md)
+manage.py      CLI for users and grants
+```
+
+Config files (`config.json`, `credentials.json`) and the SQLite `users.db` live in the project
+root, next to `manage.py`.
 
 Heavy aggregation (per-minute buckets, latest balance per account) runs in ClickHouse. The
 app normalizes and merges the results, and the browser renders them.
@@ -63,6 +74,31 @@ app normalizes and merges the results, and the browser renders them.
 The names above are placeholders. Account names such as `client1-mexc` and pairs such as
 `ABCUSDT` in the examples are made up.
 
+## Try it with demo data
+
+Needs Docker (with Compose) and about 2 GB of free memory.
+
+```bash
+docker compose -f demo/compose.yaml up --build
+```
+
+Then open **http://127.0.0.1:8050** and log in as `demo` / `demo-password`. The first start
+takes a minute or two: it builds the image, starts ClickHouse and generates a week of data.
+
+The demo runs a local ClickHouse filled with synthetic data by [demo/seed.py](demo/seed.py):
+7 markets for two made-up pairs (`ABC/USDT` on five exchanges, `XYZ/USDT` on two), and 6 accounts
+whose trades use each exchange's own message format. New snapshots, trades and balances arrive
+every 10 seconds, so presets such as "15m" stay current. Prices follow smooth waves with noise.
+Balances move on their own and aren't derived from the trades.
+
+- Open it on this machine as `127.0.0.1` (or `localhost`, which can be slower when it tries IPv6
+  first). The login cookie is `Secure`, which browsers accept over plain HTTP only there, not on
+  a LAN address. Safari may refuse it, so use Chrome, Edge or Firefox.
+- `docker compose -f demo/compose.yaml down` removes the containers and the data. The next `up` generates it again.
+- Everything for the demo is in [demo/](demo/): the compose file, Dockerfile and generator.
+- The schema is in [demo/schema.sql](demo/schema.sql): the tables and views the app reads, under
+  the placeholder names below.
+
 ## Running locally
 
 Requires Python 3.11 and access to a ClickHouse instance with the tables above.
@@ -78,7 +114,7 @@ cp config.example.json config.json                  # filters for query.py (git-
 .venv/Scripts/python manage.py add-user alice
 .venv/Scripts/python manage.py grant-all alice        # or grant-account / grant-symbol
 
-.venv/Scripts/python app.py                           # http://127.0.0.1:8050
+.venv/Scripts/python -m viewer.main                   # http://127.0.0.1:8050
 ```
 
 The ClickHouse connection can also come from the `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`,
@@ -89,4 +125,4 @@ users database defaults to `users.db` (SQLite). Set `VIEWER_DB_URL` to use anoth
 
 It runs as a single uvicorn worker behind Caddy (automatic HTTPS) on a Linux VM, managed by
 systemd. There is one worker because the ClickHouse client is shared behind a lock and the
-users database is SQLite.
+users database is SQLite. The config files and setup steps are in [deploy/](deploy/README.md).
